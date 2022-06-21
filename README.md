@@ -12,7 +12,7 @@ A python3 script for CVE-2021-39174 Cachet 2.4.0-dev Information Disclosure.
 
 * Data Extraction
 ```
-python3 cachet_2.4.0-dev.py -t http://cachet.site/ -u admin -p password
+python3 cachet_2.4.0-dev.py -t http://cachet.site/ -u username -p password
 ```
 
 ## Help
