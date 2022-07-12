@@ -20,7 +20,6 @@ python3 cachet_2.4.0-dev.py -t http://cachet.site/ -u username -p password
 python3 cachet_2.4.0-dev.py -t http://cachet.site/ -u username -p password -k API_KEY -lhost 127.0.0.1 -lport 1337
 ```
 
-
 ## Help
 
 For help menu:
