@@ -1,8 +1,4 @@
-# Project Title
-
-CVE-2021-39174 Cachet 2.4.0-dev Information Disclosure and Remote Code Execution
-
-## Description
+# CVE-2021-39174 Cachet 2.4.0-dev
 
 A python3 script for CVE-2021-39174 Cachet 2.4.0-dev Information Disclosure and RCE via Twig Server Side Template Injection. For the RCE the API KEY for the user is needed. Check out the Leave Songs link below which covers how to get the API KEY via SQL Injection CVE-2021-39165.
 
